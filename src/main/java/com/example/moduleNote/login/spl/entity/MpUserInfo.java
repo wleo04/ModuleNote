@@ -17,8 +17,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 @Entity
 @AllArgsConstructor
@@ -31,8 +33,16 @@ public class MpUserInfo implements Serializable {
 	@Id
 	@GeneratedValue(generator = "random-key-generator")
 	@GenericGenerator(name = "random-key-generator", parameters = @Parameter(name = "key_size", value = "20"), strategy = "com.example.moduleNote.common.util.JpaRandomKeyGenerator")
+	private Integer id;
+	
 	@Column(name = "USER_ID")
 	private String userId;
+	
+	@Column(name = "LOGIN_ID")
+	private String loginId;
+	
+	@Column(name = "LOGIN_PWD")
+	private String loginPwd;
 
 	@Column(name = "USER_NAME", nullable = false, length = 100)
 	private String userName;
@@ -45,5 +55,17 @@ public class MpUserInfo implements Serializable {
 
 	@Column(name = "INTERNATIONAL_CALL_CODE", nullable = false)
 	private int internationalCallCode;
+	
+	
+	public MpUserInfo(Integer id,String loginId, String userName, String loginPwd) {
+		this.id = id;
+		this.loginId = loginId;
+		this.userName = userName;
+		this.loginPwd = loginPwd;
+	}
+	
+	 public MpUserInfo toEntity() {
+	      return new MpUserInfo(id,loginId,userName,loginPwd);
+	  }
 
 }

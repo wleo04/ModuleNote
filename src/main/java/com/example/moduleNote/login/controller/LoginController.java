@@ -9,9 +9,15 @@ import com.example.moduleNote.common.constant.CommonStatusCode;
 import com.example.moduleNote.common.dto.RestApiResult;
 
 @RestController
-@RequestMapping("/login")
 public class LoginController {
-
+	
+	@PostMapping(value = "/login")
+	public String login() {
+		System.out.println("dddd");
+		return "main";
+	}
+	
+	
 	@PostMapping(value = "/doLogin", produces = MediaType.APPLICATION_JSON_VALUE)
 	public RestApiResult<String> doLogin(){
 		return new RestApiResult<>(CommonStatusCode.SUCCESS, null);
