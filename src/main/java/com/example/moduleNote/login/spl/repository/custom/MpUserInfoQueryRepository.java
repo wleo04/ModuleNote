@@ -20,14 +20,14 @@ public class MpUserInfoQueryRepository extends QuerydslRepositorySupport {
 		this.queryFactory = queryFactory;
 	}
 
-	public MpUserInfo getUserInfoByUserNameAndUserPhone(String userId, int userPhone){
+	public MpUserInfo getUserInfo(String loginId, String loginPwd){
 		QMpUserInfo mpUserInfo = QMpUserInfo.mpUserInfo;
 
 		JPAQuery<MpUserInfo> query = queryFactory.selectFrom(mpUserInfo);
 
 		BooleanBuilder booleanBuilder = new BooleanBuilder();
-		booleanBuilder.and(mpUserInfo.userId.eq(userId));
-		booleanBuilder.and(mpUserInfo.userPhone.eq(userPhone));
+		booleanBuilder.and(mpUserInfo.loginId.eq(loginId));
+		booleanBuilder.and(mpUserInfo.loginPwd.eq(loginPwd));
 
 		return query.where(booleanBuilder).fetchOne();
 	}

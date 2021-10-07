@@ -10,7 +10,11 @@
 <head>
 	<title>Title</title>
 </head>
+<script>
+	document.location.href='/login';
+</script>
 <body>
-<div>asdl;kfjnals;kdnflkasjdlfkh</div>
+<div>Test</div>
+<div>testeset</div>
 </body>
 </html>
