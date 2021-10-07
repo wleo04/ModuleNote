@@ -4,55 +4,59 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.reactive.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.moduleNote.common.filter.CustomFilter;
 import com.example.moduleNote.login.service.LoginService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfigure extends WebSecurityConfigurerAdapter{
 	@Autowired
-	private LoginService loginService;
+	private JwtTokenProvider jwtTokenProvider;
 	
-	@Override public void configure(WebSecurity web) {
-		web.ignoring();  
+	@Autowired
+	private CustomFilter filter;
+	
+	public SecurityConfigure(JwtTokenProvider jwtTokenProvider) {
+		this.jwtTokenProvider = jwtTokenProvider;
+	}
+	
+	@Override // 시큐리티에 걸리지 않을 경로 설정
+	public void configure(WebSecurity web) {
+		web.ignoring().antMatchers("/loginTest");  
+	}
+	
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception{
+		return super.authenticationManagerBean();
 	}
 	
 	@Override protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests() 
-		// /about 요청에 대해서는 로그인을 요구함 
-		.antMatchers("/").authenticated() 
-		// /admin 요청에 대해서는 ROLE_ADMIN 역할을 가지고 있어야 함 
-		.antMatchers("/admin").hasRole("ADMIN") 
-		// 나머지 요청에 대해서는 로그인을 요구하지 않음 
-		.anyRequest().permitAll() .and()
-		// 로그인하는 경우에 대해 설정함 
-		.formLogin() 
-		// 로그인 페이지를 제공하는 URL을 설정함 
-		//.loginPage("/login")
-		// 로그인 성공 URL을 설정함 
-		.successForwardUrl("/") 
-		// 로그인 실패 URL을 설정함 
-		.failureForwardUrl("/index")
-		.permitAll();
-		
-		//.and() 
-		//.addFilterBefore(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);  커스텀 필터는 jwt용임  
-		} 
+		  http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+		  
+		  
+		  /*http.csrf().disable().authorizeRequests().antMatchers("/login")
+          .permitAll().anyRequest().authenticated()
+          .and().exceptionHandling().and().sessionManagement()
+          .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+          .and().addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+          */
+		  
+		  
+	} 
 		@Bean 
 		public BCryptPasswordEncoder bCryptPasswordEncoder() { 
 			return new BCryptPasswordEncoder(); 
 		}
-		
-		@Override
-		   public void configure(AuthenticationManagerBuilder auth) throws Exception {
-		       auth.userDetailsService(loginService).passwordEncoder(bCryptPasswordEncoder());
-		   }
 	
 }
